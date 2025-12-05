@@ -51,6 +51,7 @@ signal psclk, psen, reset, PSDONE : std_logic;
 constant TbPeriod : time := 8 ns;
 signal TbClock : std_logic := '0';
 signal Unshifted_clk , ADCCLK : std_logic;
+signal shift_cnt: unsigned (8 downto 0):= (others => '0'); -- tracking shifts
 
 begin
 TbClock <= not TbClock after 2.5ns; -- create a 200MHz clock for kicks, this clock is arbitrary and is just for the PSCLK
@@ -63,13 +64,14 @@ begin
     -- TODO : in here, write some code to create PSEN signals which will rotate the the ADC_CLK a full 360 degrees from 
     -- its starting location.  Then stop rotating.
     -- need 447 inc to one full rotation 8e-9/17.9e-12= 446.93
-    -- sim needs to run ~ 30 us for full rotation
+    -- sim needs to run ~ 30 us for full rotation ... add 10 us for initial delay
     for i in 0 to 446 loop
         wait until (rising_edge (psclk));
             psen <= '1';
         wait until (rising_edge (psclk));
             psen <= '0';
-        wait until (rising_edge (PSDONE));                  
+        wait until (rising_edge (PSDONE));                 
+            shift_cnt <= shift_cnt + 1; 
     end loop;
     wait; 
  end process;
