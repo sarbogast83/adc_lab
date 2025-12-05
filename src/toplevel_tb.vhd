@@ -58,10 +58,19 @@ psclk <= TbClock; -- this will be the board clock 125MHz
 
 stimuli : process
 begin
-    PSEN <= '0';
+    psen <= '0';
     wait for 10 us;
     -- TODO : in here, write some code to create PSEN signals which will rotate the the ADC_CLK a full 360 degrees from 
     -- its starting location.  Then stop rotating.
+    -- need 447 inc to one full rotation 8e-9/17.9e-12= 446.93
+    -- sim needs to run ~ 30 us for full rotation
+    for i in 0 to 446 loop
+        wait until (rising_edge (psclk));
+            psen <= '1';
+        wait until (rising_edge (psclk));
+            psen <= '0';
+        wait until (rising_edge (PSDONE));                  
+    end loop;
     wait; 
  end process;
 
